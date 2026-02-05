@@ -3,6 +3,10 @@ const MOBILE_BREAKPOINT = 768;
 
 // Main initialization
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize i18n first if available
+    if (window.i18n) {
+        window.i18n.init();
+    }
     initMobileMenu();
     initCodeTabs();
     initFaqAccordion();

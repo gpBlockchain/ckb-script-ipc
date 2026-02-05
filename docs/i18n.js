@@ -144,6 +144,124 @@ const translations = {
         notify_challenge_fail: "❌ Some tests failed. Check the hints and try again.",
         notify_restart: "🔄 Tutorial restarted. Let's go!",
         
+        // Index page - Navigation
+        index_nav_features: "Features",
+        index_nav_how_works: "How It Works",
+        index_nav_examples: "Examples",
+        index_nav_faq: "FAQ",
+        
+        // Index page - Hero Section
+        index_hero_badge: "🚀 Open Source",
+        index_hero_title: "CKB Script IPC",
+        index_hero_subtitle_1: "Make CKB contracts interact like",
+        index_hero_subtitle_2: "building blocks",
+        index_hero_subtitle_3: "",
+        index_hero_description: "A powerful Inter-Process Communication protocol that enables seamless communication between CKB scripts. Build modular, reusable, and composable smart contracts.",
+        index_hero_btn_tutorial: "🎮 Start Interactive Tutorial",
+        index_hero_btn_learn: "Learn More",
+        index_hero_stat1_num: "Rust & C",
+        index_hero_stat1_label: "Multi-Language Support",
+        index_hero_stat2_num: "VLQ",
+        index_hero_stat2_label: "Compact Wire Format",
+        index_hero_stat3_num: "Serde",
+        index_hero_stat3_label: "JSON Serialization",
+        index_hero_script_a: "Script A",
+        index_hero_script_b: "Script B",
+        index_hero_script_c: "Script C",
+        
+        // Index page - Features Section
+        index_features_title: "Why CKB Script IPC?",
+        index_features_subtitle: "Build smarter contracts with modular, reusable components",
+        index_feature1_title: "Modular Design",
+        index_feature1_desc: "Split complex logic into separate scripts that communicate seamlessly. Build once, reuse everywhere.",
+        index_feature2_title: "Automatic Code Generation",
+        index_feature2_desc: "Use proc-macros to automatically generate IPC boilerplate code. Focus on your business logic, not plumbing.",
+        index_feature3_title: "Easy Serialization",
+        index_feature3_desc: "Built-in support for serde serialization. Any type that implements Serialize/Deserialize works out of the box.",
+        index_feature4_title: "Type Safety",
+        index_feature4_desc: "Strong type checking at compile time. Catch errors before deployment, not in production.",
+        index_feature5_title: "Compact Protocol",
+        index_feature5_desc: "Uses VLQ (Variable-Length Quantity) encoding for efficient wire format. Minimal overhead, maximum performance.",
+        index_feature6_title: "Multi-Language Support",
+        index_feature6_desc: "Implementations in both Rust and C. Choose the language that fits your project best.",
+        
+        // Index page - How It Works Section
+        index_how_title: "How It Works",
+        index_how_subtitle: "Simple concepts, powerful results",
+        index_how_client: "Client Script",
+        index_how_server: "Server Script",
+        index_how_request: "Request (VLQ)",
+        index_how_response: "Response (VLQ)",
+        index_protocol_title: "Wire Protocol Format",
+        index_protocol_request: "📤 Request Packet",
+        index_protocol_response: "📥 Response Packet",
+        
+        // Index page - Code Examples Section
+        index_examples_title: "Code Examples",
+        index_examples_subtitle: "See how easy it is to use CKB Script IPC",
+        index_examples_tab1: "1. Define Interface",
+        index_examples_tab2: "2. Implement Server",
+        index_examples_tab3: "3. Create Client",
+        
+        // Index page - Use Cases Section
+        index_usecases_title: "Real World Use Cases",
+        index_usecases_subtitle: "See what you can build with CKB Script IPC",
+        index_usecase1_title: "Crypto Services",
+        index_usecase1_desc: "Build reusable cryptographic services that multiple scripts can share:",
+        index_usecase1_item1: "Blake2b, SHA-256, RIPEMD-160 hashing",
+        index_usecase1_item2: "Secp256k1 signature verification",
+        index_usecase1_item3: "Schnorr and Ed25519 signatures",
+        index_usecase1_link: "View Example →",
+        index_usecase2_title: "Complex Computation",
+        index_usecase2_desc: "Offload heavy computation to specialized scripts:",
+        index_usecase2_item1: "Mathematical operations",
+        index_usecase2_item2: "Data validation logic",
+        index_usecase2_item3: "Protocol-specific calculations",
+        index_usecase3_title: "Composable Contracts",
+        index_usecase3_desc: "Build contracts that work together like LEGO blocks:",
+        index_usecase3_item1: "Modular authentication",
+        index_usecase3_item2: "Shared state management",
+        index_usecase3_item3: "Plugin architecture",
+        
+        // Index page - Getting Started Section
+        index_started_title: "Getting Started",
+        index_started_subtitle: "Start building with CKB Script IPC in minutes",
+        index_started_step1_title: "Add Dependencies",
+        index_started_step2_title: "Define Your Interface",
+        index_started_step3_title: "Implement & Use",
+        index_started_step3_desc: "Implement the trait for your server, spawn it from your client, and start making calls!",
+        index_started_step3_btn: "View Full Demo →",
+        index_started_lang_title: "Choose Your Language",
+        index_started_rust_title: "Rust",
+        index_started_rust_desc: "Full-featured implementation with proc-macros for automatic code generation.",
+        index_started_rust_link: "View Rust Crate →",
+        index_started_c_title: "C",
+        index_started_c_desc: "Core IPC functionality for C projects. Manual serialization required.",
+        index_started_c_link: "View C Library →",
+        
+        // Index page - FAQ Section
+        index_faq_title: "Frequently Asked Questions",
+        index_faq1_q: "What types can be used in IPC methods?",
+        index_faq1_a: "Any type that implements Serialize and Deserialize from serde can be used. This includes all primitive types, standard library types, and custom structs annotated with #[derive(Serialize, Deserialize)].",
+        index_faq2_q: "What serialization format is used?",
+        index_faq2_a: "CKB Script IPC uses serde_json for message serialization. This provides a good balance between human readability and compatibility.",
+        index_faq3_q: "Why is it called IPC instead of RPC?",
+        index_faq3_a: "The code operates within a script process that is part of a transaction, and can only run on the same machine. This is more akin to Inter-Process Communication (IPC) rather than Remote Procedure Call (RPC). RPC typically includes features like encryption, authentication, retries, and scaling that aren't relevant in this context.",
+        index_faq4_q: "How can I see the generated code?",
+        index_faq4_a: "Use cargo-expand to view the code generated by the #[ckb_script_ipc::service] macro.",
+        index_faq5_q: "Can I use CKB Script IPC from off-chain code?",
+        index_faq5_a: "Yes! Enable the std feature in ckb-script-ipc-common and use native::spawn_server to interact with on-chain script services from native code.",
+        
+        // Index page - CTA Section
+        index_cta_title: "Ready to Build?",
+        index_cta_subtitle: "Start building modular, composable CKB contracts today.",
+        index_cta_github: "View on GitHub",
+        index_cta_examples: "Explore Examples",
+        
+        // Index page - Footer
+        index_footer_tagline: "Building block communication for CKB scripts.",
+        index_footer_inspired: "Inspired by",
+        
         // Language
         lang_switch: "中文"
     },
@@ -292,6 +410,124 @@ const translations = {
         notify_challenge_fail: "❌ 部分测试失败。查看提示并重试。",
         notify_restart: "🔄 教程已重新开始。开始吧！",
         
+        // Index page - Navigation
+        index_nav_features: "特性",
+        index_nav_how_works: "工作原理",
+        index_nav_examples: "示例",
+        index_nav_faq: "常见问题",
+        
+        // Index page - Hero Section
+        index_hero_badge: "🚀 开源项目",
+        index_hero_title: "CKB Script IPC",
+        index_hero_subtitle_1: "让 CKB 合约像",
+        index_hero_subtitle_2: "积木",
+        index_hero_subtitle_3: "一样交互",
+        index_hero_description: "一个强大的进程间通信协议，实现 CKB 脚本之间的无缝通信。构建模块化、可重用、可组合的智能合约。",
+        index_hero_btn_tutorial: "🎮 开始交互式教程",
+        index_hero_btn_learn: "了解更多",
+        index_hero_stat1_num: "Rust & C",
+        index_hero_stat1_label: "多语言支持",
+        index_hero_stat2_num: "VLQ",
+        index_hero_stat2_label: "紧凑的传输格式",
+        index_hero_stat3_num: "Serde",
+        index_hero_stat3_label: "JSON 序列化",
+        index_hero_script_a: "脚本 A",
+        index_hero_script_b: "脚本 B",
+        index_hero_script_c: "脚本 C",
+        
+        // Index page - Features Section
+        index_features_title: "为什么选择 CKB Script IPC？",
+        index_features_subtitle: "使用模块化、可重用的组件构建更智能的合约",
+        index_feature1_title: "模块化设计",
+        index_feature1_desc: "将复杂逻辑拆分为独立脚本，实现无缝通信。一次构建，随处复用。",
+        index_feature2_title: "自动代码生成",
+        index_feature2_desc: "使用 proc-macros 自动生成 IPC 样板代码。专注于业务逻辑，而非基础设施。",
+        index_feature3_title: "简单的序列化",
+        index_feature3_desc: "内置 serde 序列化支持。任何实现 Serialize/Deserialize 的类型都可以直接使用。",
+        index_feature4_title: "类型安全",
+        index_feature4_desc: "编译时强类型检查。在部署前而不是生产中发现错误。",
+        index_feature5_title: "紧凑的协议",
+        index_feature5_desc: "使用 VLQ（可变长度数量）编码实现高效的传输格式。最小开销，最大性能。",
+        index_feature6_title: "多语言支持",
+        index_feature6_desc: "提供 Rust 和 C 两种实现。选择最适合你项目的语言。",
+        
+        // Index page - How It Works Section
+        index_how_title: "工作原理",
+        index_how_subtitle: "简单的概念，强大的效果",
+        index_how_client: "客户端脚本",
+        index_how_server: "服务端脚本",
+        index_how_request: "请求 (VLQ)",
+        index_how_response: "响应 (VLQ)",
+        index_protocol_title: "传输协议格式",
+        index_protocol_request: "📤 请求数据包",
+        index_protocol_response: "📥 响应数据包",
+        
+        // Index page - Code Examples Section
+        index_examples_title: "代码示例",
+        index_examples_subtitle: "看看使用 CKB Script IPC 有多简单",
+        index_examples_tab1: "1. 定义接口",
+        index_examples_tab2: "2. 实现服务端",
+        index_examples_tab3: "3. 创建客户端",
+        
+        // Index page - Use Cases Section
+        index_usecases_title: "实际应用场景",
+        index_usecases_subtitle: "看看你可以用 CKB Script IPC 构建什么",
+        index_usecase1_title: "加密服务",
+        index_usecase1_desc: "构建多个脚本可共享的可重用加密服务：",
+        index_usecase1_item1: "Blake2b、SHA-256、RIPEMD-160 哈希",
+        index_usecase1_item2: "Secp256k1 签名验证",
+        index_usecase1_item3: "Schnorr 和 Ed25519 签名",
+        index_usecase1_link: "查看示例 →",
+        index_usecase2_title: "复杂计算",
+        index_usecase2_desc: "将繁重的计算卸载到专门的脚本：",
+        index_usecase2_item1: "数学运算",
+        index_usecase2_item2: "数据验证逻辑",
+        index_usecase2_item3: "协议特定计算",
+        index_usecase3_title: "可组合的合约",
+        index_usecase3_desc: "构建像乐高积木一样协同工作的合约：",
+        index_usecase3_item1: "模块化身份验证",
+        index_usecase3_item2: "共享状态管理",
+        index_usecase3_item3: "插件架构",
+        
+        // Index page - Getting Started Section
+        index_started_title: "快速开始",
+        index_started_subtitle: "几分钟内开始使用 CKB Script IPC",
+        index_started_step1_title: "添加依赖",
+        index_started_step2_title: "定义接口",
+        index_started_step3_title: "实现并使用",
+        index_started_step3_desc: "为服务端实现 trait，从客户端启动它，然后开始调用！",
+        index_started_step3_btn: "查看完整示例 →",
+        index_started_lang_title: "选择你的语言",
+        index_started_rust_title: "Rust",
+        index_started_rust_desc: "功能完整的实现，使用 proc-macros 自动生成代码。",
+        index_started_rust_link: "查看 Rust Crate →",
+        index_started_c_title: "C",
+        index_started_c_desc: "为 C 项目提供核心 IPC 功能。需要手动序列化。",
+        index_started_c_link: "查看 C 库 →",
+        
+        // Index page - FAQ Section
+        index_faq_title: "常见问题",
+        index_faq1_q: "IPC 方法可以使用哪些类型？",
+        index_faq1_a: "任何实现了 serde 的 Serialize 和 Deserialize 的类型都可以使用。包括所有原始类型、标准库类型以及使用 #[derive(Serialize, Deserialize)] 注解的自定义结构体。",
+        index_faq2_q: "使用什么序列化格式？",
+        index_faq2_a: "CKB Script IPC 使用 serde_json 进行消息序列化。这在人类可读性和兼容性之间提供了良好的平衡。",
+        index_faq3_q: "为什么叫 IPC 而不是 RPC？",
+        index_faq3_a: "代码在作为交易一部分的脚本进程中运行，只能在同一台机器上运行。这更类似于进程间通信（IPC）而不是远程过程调用（RPC）。RPC 通常包括加密、身份验证、重试和扩展等在此上下文中不相关的功能。",
+        index_faq4_q: "如何查看生成的代码？",
+        index_faq4_a: "使用 cargo-expand 查看 #[ckb_script_ipc::service] 宏生成的代码。",
+        index_faq5_q: "可以从链下代码使用 CKB Script IPC 吗？",
+        index_faq5_a: "可以！在 ckb-script-ipc-common 中启用 std 特性，并使用 native::spawn_server 从原生代码与链上脚本服务交互。",
+        
+        // Index page - CTA Section
+        index_cta_title: "准备好开始了吗？",
+        index_cta_subtitle: "立即开始构建模块化、可组合的 CKB 合约。",
+        index_cta_github: "在 GitHub 上查看",
+        index_cta_examples: "探索示例",
+        
+        // Index page - Footer
+        index_footer_tagline: "CKB 脚本的积木式通信。",
+        index_footer_inspired: "灵感来自",
+        
         // Language
         lang_switch: "English"
     }
@@ -302,7 +538,10 @@ let currentLang = localStorage.getItem('ckb-ipc-lang') || 'en';
 
 // Get translation
 function t(key) {
-    return translations[currentLang][key] || translations['en'][key] || key;
+    const translation = translations[currentLang][key];
+    // Return empty string if explicitly set to empty, otherwise fallback
+    if (translation === '') return '';
+    return translation || translations['en'][key] || key;
 }
 
 // Switch language
@@ -334,6 +573,11 @@ function applyTranslations() {
         const key = el.getAttribute('data-i18n');
         const translation = t(key);
         
+        // Skip if translation is the same as key (not found) or empty
+        if (translation === key && !translations.en[key]) {
+            return;
+        }
+        
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
             el.placeholder = translation;
         } else if (htmlKeys.has(key)) {
@@ -345,10 +589,17 @@ function applyTranslations() {
         }
     });
     
-    // Update page title
-    document.title = currentLang === 'zh' ? 
-        'CKB Script IPC - 交互式教程' : 
-        'CKB Script IPC - Interactive Playground';
+    // Update page title based on current page
+    const isPlayground = window.location.pathname.includes('playground');
+    if (currentLang === 'zh') {
+        document.title = isPlayground ? 
+            'CKB Script IPC - 交互式教程' : 
+            'CKB Script IPC - CKB 脚本的积木式通信';
+    } else {
+        document.title = isPlayground ? 
+            'CKB Script IPC - Interactive Playground' : 
+            'CKB Script IPC - Building Block Communication for CKB Scripts';
+    }
 }
 
 // Initialize i18n on page load
