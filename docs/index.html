@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKB Script IPC - Building Block Communication for CKB Scripts</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">🧩</span>
+                CKB Script IPC
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#examples">Examples</a>
+                <a href="#getting-started">Get Started</a>
+                <a href="#faq">FAQ</a>
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc" target="_blank" class="btn-github" aria-label="View project on GitHub">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Open Source</div>
+            <h1>CKB Script IPC</h1>
+            <p class="hero-subtitle">
+                Make CKB contracts interact like <span class="highlight">building blocks</span>
+            </p>
+            <p class="hero-description">
+                A powerful Inter-Process Communication protocol that enables seamless communication 
+                between CKB scripts. Build modular, reusable, and composable smart contracts.
+            </p>
+            <div class="hero-buttons">
+                <a href="#getting-started" class="btn btn-primary">Get Started</a>
+                <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-number">Rust & C</span>
+                    <span class="stat-label">Multi-Language Support</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">VLQ</span>
+                    <span class="stat-label">Compact Wire Format</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">Serde</span>
+                    <span class="stat-label">JSON Serialization</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="blocks-animation">
+                <div class="block block-1">
+                    <span>Script A</span>
+                    <div class="block-icon">📦</div>
+                </div>
+                <div class="connection">
+                    <div class="data-flow"></div>
+                    <span class="connection-label">IPC</span>
+                </div>
+                <div class="block block-2">
+                    <span>Script B</span>
+                    <div class="block-icon">📦</div>
+                </div>
+                <div class="connection vertical">
+                    <div class="data-flow"></div>
+                </div>
+                <div class="block block-3">
+                    <span>Script C</span>
+                    <div class="block-icon">📦</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why CKB Script IPC?</h2>
+            <p class="section-subtitle">
+                Build smarter contracts with modular, reusable components
+            </p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧩</div>
+                    <h3>Modular Design</h3>
+                    <p>Split complex logic into separate scripts that communicate seamlessly. Build once, reuse everywhere.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Automatic Code Generation</h3>
+                    <p>Use proc-macros to automatically generate IPC boilerplate code. Focus on your business logic, not plumbing.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Easy Serialization</h3>
+                    <p>Built-in support for serde serialization. Any type that implements Serialize/Deserialize works out of the box.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Type Safety</h3>
+                    <p>Strong type checking at compile time. Catch errors before deployment, not in production.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Compact Protocol</h3>
+                    <p>Uses VLQ (Variable-Length Quantity) encoding for efficient wire format. Minimal overhead, maximum performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Multi-Language Support</h3>
+                    <p>Implementations in both Rust and C. Choose the language that fits your project best.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">
+                Simple concepts, powerful results
+            </p>
+            
+            <div class="architecture">
+                <div class="arch-diagram">
+                    <div class="arch-layer client-layer">
+                        <h4>Client Script</h4>
+                        <div class="arch-box">
+                            <span>spawn_server()</span>
+                        </div>
+                        <div class="arch-box">
+                            <span>WorldClient::new()</span>
+                        </div>
+                        <div class="arch-box highlight-box">
+                            <span>client.hello("world")</span>
+                        </div>
+                    </div>
+                    
+                    <div class="arch-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-labels">
+                            <span class="arrow-label request">Request (VLQ)</span>
+                            <span class="arrow-label response">Response (VLQ)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="arch-layer server-layer">
+                        <h4>Server Script</h4>
+                        <div class="arch-box">
+                            <span>impl World for Server</span>
+                        </div>
+                        <div class="arch-box">
+                            <span>run_server()</span>
+                        </div>
+                        <div class="arch-box highlight-box">
+                            <span>fn hello() → "hello, world"</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="protocol-details">
+                <h3>Wire Protocol Format</h3>
+                <div class="protocol-grid">
+                    <div class="protocol-card">
+                        <h4>📤 Request Packet</h4>
+                        <div class="packet-structure">
+                            <div class="packet-field">
+                                <span class="field-name">version</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field">
+                                <span class="field-name">method_id</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field">
+                                <span class="field-name">length</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field payload">
+                                <span class="field-name">payload</span>
+                                <span class="field-type">bytes</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="protocol-card">
+                        <h4>📥 Response Packet</h4>
+                        <div class="packet-structure">
+                            <div class="packet-field">
+                                <span class="field-name">version</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field">
+                                <span class="field-name">error_code</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field">
+                                <span class="field-name">length</span>
+                                <span class="field-type">VLQ</span>
+                            </div>
+                            <div class="packet-field payload">
+                                <span class="field-name">payload</span>
+                                <span class="field-type">bytes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section id="examples" class="examples">
+        <div class="container">
+            <h2 class="section-title">Code Examples</h2>
+            <p class="section-subtitle">
+                See how easy it is to use CKB Script IPC
+            </p>
+
+            <div class="code-tabs">
+                <button class="tab-btn active" data-tab="define">1. Define Interface</button>
+                <button class="tab-btn" data-tab="server">2. Implement Server</button>
+                <button class="tab-btn" data-tab="client">3. Create Client</button>
+            </div>
+
+            <div class="code-panels">
+                <div class="code-panel active" id="define">
+                    <div class="code-header">
+                        <span class="code-filename">def.rs</span>
+                        <span class="code-lang">Rust</span>
+                    </div>
+                    <pre><code><span class="keyword">use</span> alloc::string::String;
+
+<span class="comment">// Define your IPC interface with a simple trait</span>
+<span class="attribute">#[ckb_script_ipc::service]</span>
+<span class="keyword">pub trait</span> <span class="type">World</span> {
+    <span class="keyword">fn</span> <span class="function">hello</span>(name: String) -> <span class="type">Result</span>&lt;String, u64&gt;;
+}
+
+<span class="comment">// That's it! The proc-macro generates:</span>
+<span class="comment">// - WorldClient for calling the service</span>
+<span class="comment">// - WorldServer trait for implementing the service</span>
+<span class="comment">// - All serialization/deserialization code</span></code></pre>
+                </div>
+
+                <div class="code-panel" id="server">
+                    <div class="code-header">
+                        <span class="code-filename">server_entry.rs</span>
+                        <span class="code-lang">Rust</span>
+                    </div>
+                    <pre><code><span class="keyword">use</span> crate::def::World;
+<span class="keyword">use</span> ckb_script_ipc_common::spawn::run_server;
+
+<span class="keyword">struct</span> <span class="type">WorldServer</span>;
+
+<span class="keyword">impl</span> <span class="type">World</span> <span class="keyword">for</span> <span class="type">WorldServer</span> {
+    <span class="comment">// Implement your method logic</span>
+    <span class="keyword">fn</span> <span class="function">hello</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, name: String) -> <span class="type">Result</span>&lt;String, u64&gt; {
+        <span class="keyword">if</span> name == <span class="string">"error"</span> {
+            <span class="type">Err</span>(<span class="number">1</span>)
+        } <span class="keyword">else</span> {
+            <span class="type">Ok</span>(<span class="macro">format!</span>(<span class="string">"hello, {}"</span>, name))
+        }
+    }
+}
+
+<span class="keyword">pub fn</span> <span class="function">server_entry</span>() -> <span class="type">Result</span>&lt;(), Error&gt; {
+    <span class="keyword">let</span> world = WorldServer;
+    <span class="comment">// Start the server - it runs in an infinite loop</span>
+    run_server(world.server())
+}</code></pre>
+                </div>
+
+                <div class="code-panel" id="client">
+                    <div class="code-header">
+                        <span class="code-filename">client_entry.rs</span>
+                        <span class="code-lang">Rust</span>
+                    </div>
+                    <pre><code><span class="keyword">use</span> crate::def::WorldClient;
+<span class="keyword">use</span> ckb_script_ipc_common::spawn::spawn_server;
+<span class="keyword">use</span> ckb_std::ckb_constants::Source;
+
+<span class="keyword">pub fn</span> <span class="function">client_entry</span>() -> <span class="type">Result</span>&lt;(), Error&gt; {
+    <span class="comment">// 1. Spawn the server process</span>
+    <span class="keyword">let</span> (read_pipe, write_pipe) = spawn_server(
+        <span class="number">0</span>,
+        Source::CellDep,
+        &amp;[CString::new(<span class="string">"demo"</span>).unwrap().as_ref()],
+    )?;
+
+    <span class="comment">// 2. Create the client</span>
+    <span class="keyword">let mut</span> client = WorldClient::new(read_pipe, write_pipe);
+
+    <span class="comment">// 3. Make IPC calls - just like calling a local function!</span>
+    <span class="keyword">let</span> result = client.hello(<span class="string">"world"</span>.into())?;
+    <span class="comment">// result = "hello, world"</span>
+
+    <span class="type">Ok</span>(())
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section id="use-cases" class="use-cases">
+        <div class="container">
+            <h2 class="section-title">Real World Use Cases</h2>
+            <p class="section-subtitle">
+                See what you can build with CKB Script IPC
+            </p>
+
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔐</div>
+                    <h3>Crypto Services</h3>
+                    <p>Build reusable cryptographic services that multiple scripts can share:</p>
+                    <ul>
+                        <li>Blake2b, SHA-256, RIPEMD-160 hashing</li>
+                        <li>Secp256k1 signature verification</li>
+                        <li>Schnorr and Ed25519 signatures</li>
+                    </ul>
+                    <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/contracts/ckb-crypto-service" target="_blank" class="use-case-link">View Example →</a>
+                </div>
+                
+                <div class="use-case-card">
+                    <div class="use-case-icon">🧮</div>
+                    <h3>Complex Computation</h3>
+                    <p>Offload heavy computation to specialized scripts:</p>
+                    <ul>
+                        <li>Mathematical operations</li>
+                        <li>Data validation logic</li>
+                        <li>Protocol-specific calculations</li>
+                    </ul>
+                </div>
+                
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔗</div>
+                    <h3>Composable Contracts</h3>
+                    <p>Build contracts that work together like LEGO blocks:</p>
+                    <ul>
+                        <li>Modular authentication</li>
+                        <li>Shared state management</li>
+                        <li>Plugin architecture</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section id="getting-started" class="getting-started">
+        <div class="container">
+            <h2 class="section-title">Getting Started</h2>
+            <p class="section-subtitle">
+                Start building with CKB Script IPC in minutes
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Add Dependencies</h3>
+                        <div class="code-block">
+                            <pre><code><span class="comment"># Cargo.toml</span>
+[dependencies]
+ckb-script-ipc = "x.x.x"
+ckb-script-ipc-common = "x.x.x"
+serde = { version = "1.0", default-features = false, features = ["derive"] }</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Define Your Interface</h3>
+                        <div class="code-block">
+                            <pre><code><span class="attribute">#[ckb_script_ipc::service]</span>
+<span class="keyword">pub trait</span> <span class="type">MyService</span> {
+    <span class="keyword">fn</span> <span class="function">my_method</span>(arg: String) -> <span class="type">Result</span>&lt;String, u64&gt;;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Implement & Use</h3>
+                        <p>Implement the trait for your server, spawn it from your client, and start making calls!</p>
+                        <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/contracts/ckb-script-ipc-demo" target="_blank" class="btn btn-primary">View Full Demo →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="language-options">
+                <h3>Choose Your Language</h3>
+                <div class="lang-cards">
+                    <div class="lang-card">
+                        <div class="lang-icon">🦀</div>
+                        <h4>Rust</h4>
+                        <p>Full-featured implementation with proc-macros for automatic code generation.</p>
+                        <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/crates/ckb-script-ipc" target="_blank">View Rust Crate →</a>
+                    </div>
+                    <div class="lang-card">
+                        <div class="lang-icon">⚙️</div>
+                        <h4>C</h4>
+                        <p>Core IPC functionality for C projects. Manual serialization required.</p>
+                        <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/c" target="_blank">View C Library →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What types can be used in IPC methods?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Any type that implements <code>Serialize</code> and <code>Deserialize</code> from serde can be used. This includes all primitive types, standard library types, and custom structs annotated with <code>#[derive(Serialize, Deserialize)]</code>.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What serialization format is used?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>CKB Script IPC uses <a href="https://crates.io/crates/serde_json" target="_blank">serde_json</a> for message serialization. This provides a good balance between human readability and compatibility.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Why is it called IPC instead of RPC?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>The code operates within a script process that is part of a transaction, and can only run on the same machine. This is more akin to Inter-Process Communication (IPC) rather than Remote Procedure Call (RPC). RPC typically includes features like encryption, authentication, retries, and scaling that aren't relevant in this context.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How can I see the generated code?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Use <a href="https://github.com/dtolnay/cargo-expand" target="_blank">cargo-expand</a> to view the code generated by the <code>#[ckb_script_ipc::service]</code> macro.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Can I use CKB Script IPC from off-chain code?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! Enable the <code>std</code> feature in <code>ckb-script-ipc-common</code> and use <code>native::spawn_server</code> to interact with on-chain script services from native code.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Build?</h2>
+            <p>Start building modular, composable CKB contracts today.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc" target="_blank" class="btn btn-primary btn-large">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+                <a href="#examples" class="btn btn-secondary btn-large">Explore Examples</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-icon">🧩</span>
+                    <span>CKB Script IPC</span>
+                </div>
+                <p>Building block communication for CKB scripts.</p>
+                <p class="footer-credit">
+                    Inspired by <a href="https://github.com/google/tarpc" target="_blank">tarpc</a>
+                </p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc" target="_blank">GitHub</a>
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc/blob/main/LICENSE" target="_blank">License</a>
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc/issues" target="_blank">Issues</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
