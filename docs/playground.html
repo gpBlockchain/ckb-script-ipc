@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKB Script IPC - Interactive Playground</title>
+    <link rel="stylesheet" href="playground.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🧩</span>
+                CKB Script IPC
+            </a>
+            <div class="nav-links">
+                <a href="index.html" data-i18n="nav_home">Home</a>
+                <a href="playground.html" class="active" data-i18n="nav_playground">Interactive Playground</a>
+                <button class="lang-switch" id="langSwitch" onclick="i18n.switchLanguage()" aria-label="Switch language">中文</button>
+                <a href="https://github.com/gpBlockchain/ckb-script-ipc" target="_blank" class="btn-github">
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="playground-main">
+        <!-- Tutorial Progress -->
+        <div class="tutorial-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <button class="step-btn active" data-step="1" data-i18n="step1_title">1. Define Interface</button>
+                <button class="step-btn" data-step="2" data-i18n="step2_title">2. Implement Server</button>
+                <button class="step-btn" data-step="3" data-i18n="step3_title">3. Create Client</button>
+                <button class="step-btn" data-step="4" data-i18n="step4_title">4. Send Messages</button>
+                <button class="step-btn" data-step="5" data-i18n="step5_title">5. Challenge</button>
+            </div>
+        </div>
+
+        <!-- Tutorial Content -->
+        <div class="tutorial-container">
+            <!-- Step 1: Define Interface -->
+            <section class="tutorial-step active" id="step1">
+                <div class="step-header">
+                    <h2 data-i18n="step1_heading">Step 1: Define Your IPC Interface</h2>
+                    <p class="step-description" data-i18n="step1_description">
+                        First, let's define an interface that describes the methods your server will provide. 
+                        This is like creating a contract between the client and server.
+                    </p>
+                </div>
+
+                <div class="playground-layout">
+                    <div class="code-editor-section">
+                        <div class="editor-header">
+                            <span class="file-name" data-i18n="step1_file">📄 def.rs</span>
+                            <span class="editor-hint" data-i18n="step1_edit_hint">Edit the code below!</span>
+                        </div>
+                        <div class="code-editor" contenteditable="true" id="editor1" spellcheck="false">
+<span class="keyword">use</span> alloc::string::String;
+
+<span class="comment">// Define your IPC interface</span>
+<span class="attribute">#[ckb_script_ipc::service]</span>
+<span class="keyword">pub trait</span> <span class="type">Calculator</span> {
+    <span class="comment">// TODO: Add a method called 'add' that takes two i32 numbers</span>
+    <span class="comment">// and returns Result&lt;i32, u64&gt;</span>
+    
+    <span class="keyword">fn</span> <span class="function">multiply</span>(a: <span class="type">i32</span>, b: <span class="type">i32</span>) -> <span class="type">Result</span>&lt;<span class="type">i32</span>, <span class="type">u64</span>&gt;;
+}</div>
+                        <div class="editor-actions">
+                            <button class="btn-hint" onclick="showHint(1)" data-i18n="btn_hint">💡 Show Hint</button>
+                            <button class="btn-check" onclick="checkStep1()" data-i18n="btn_check">✓ Check Answer</button>
+                            <button class="btn-reset" onclick="resetEditor(1)" data-i18n="btn_reset">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="visualization-section">
+                        <h3 data-i18n="step1_what_building">🎯 What You're Building</h3>
+                        <div class="interface-preview">
+                            <div class="trait-box">
+                                <div class="trait-name">Calculator</div>
+                                <div class="methods-list" id="methodsList1">
+                                    <div class="method-item detected">
+                                        <span class="method-icon">✓</span>
+                                        <code>multiply(a, b) → i32</code>
+                                    </div>
+                                    <div class="method-item missing" id="addMethodStatus">
+                                        <span class="method-icon">?</span>
+                                        <code>add(a, b) → ?</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hint-box hidden" id="hint1">
+                            <strong data-i18n="step1_hint_title">💡 Hint:</strong> <span data-i18n="step1_hint_text">Add this line inside the trait:</span>
+                            <code>fn add(a: i32, b: i32) -> Result&lt;i32, u64&gt;;</code>
+                        </div>
+                        <div class="success-box hidden" id="success1">
+                            <strong data-i18n="step1_success_title">🎉 Great job!</strong> <span data-i18n="step1_success_text">You've defined the interface. The proc-macro will automatically generate:</span>
+                            <ul>
+                                <li>✓ <span data-i18n="step1_success_client">CalculatorClient - for making calls</span></li>
+                                <li>✓ <span data-i18n="step1_success_server">CalculatorServer - for handling requests</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn-next" onclick="nextStep(2)" disabled id="next1" data-i18n="step1_next">
+                        Next: Implement Server →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Implement Server -->
+            <section class="tutorial-step" id="step2">
+                <div class="step-header">
+                    <h2 data-i18n="step2_heading">Step 2: Implement the Server</h2>
+                    <p class="step-description" data-i18n="step2_description">
+                        Now let's implement the actual logic for our Calculator service. 
+                        The server will process incoming requests and return results.
+                    </p>
+                </div>
+
+                <div class="playground-layout">
+                    <div class="code-editor-section">
+                        <div class="editor-header">
+                            <span class="file-name" data-i18n="step2_file">📄 server.rs</span>
+                            <span class="editor-hint" data-i18n="step2_edit_hint">Complete the implementation!</span>
+                        </div>
+                        <div class="code-editor" contenteditable="true" id="editor2" spellcheck="false">
+<span class="keyword">struct</span> <span class="type">CalculatorServer</span>;
+
+<span class="keyword">impl</span> <span class="type">Calculator</span> <span class="keyword">for</span> <span class="type">CalculatorServer</span> {
+    <span class="keyword">fn</span> <span class="function">add</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, a: <span class="type">i32</span>, b: <span class="type">i32</span>) -> <span class="type">Result</span>&lt;<span class="type">i32</span>, <span class="type">u64</span>&gt; {
+        <span class="comment">// TODO: Return Ok with a + b</span>
+        
+    }
+
+    <span class="keyword">fn</span> <span class="function">multiply</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, a: <span class="type">i32</span>, b: <span class="type">i32</span>) -> <span class="type">Result</span>&lt;<span class="type">i32</span>, <span class="type">u64</span>&gt; {
+        <span class="type">Ok</span>(a * b)
+    }
+}
+
+<span class="comment">// Start the server</span>
+run_server(CalculatorServer.server())</div>
+                        <div class="editor-actions">
+                            <button class="btn-hint" onclick="showHint(2)" data-i18n="btn_hint">💡 Show Hint</button>
+                            <button class="btn-check" onclick="checkStep2()" data-i18n="btn_check">✓ Check Answer</button>
+                            <button class="btn-reset" onclick="resetEditor(2)" data-i18n="btn_reset">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="visualization-section">
+                        <h3 data-i18n="step2_server_status">🖥️ Server Status</h3>
+                        <div class="server-viz">
+                            <div class="server-box" id="serverBox">
+                                <div class="server-icon">🖥️</div>
+                                <div class="server-status" data-i18n="step2_waiting">Waiting for implementation...</div>
+                                <div class="server-methods">
+                                    <div class="method-status" id="addImpl">
+                                        <span class="status-dot pending"></span>
+                                        <span data-i18n="step2_not_impl">add() - Not implemented</span>
+                                    </div>
+                                    <div class="method-status">
+                                        <span class="status-dot ready"></span>
+                                        <span data-i18n="step2_ready">multiply() - Ready</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hint-box hidden" id="hint2">
+                            <strong data-i18n="step2_hint_title">💡 Hint:</strong> <span data-i18n="step2_hint_text">Replace the TODO comment with:</span>
+                            <code>Ok(a + b)</code>
+                        </div>
+                        <div class="success-box hidden" id="success2">
+                            <strong data-i18n="step2_success_title">🎉 Server Ready!</strong> <span data-i18n="step2_success_text">Your Calculator server is now fully implemented and ready to receive requests.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn-prev" onclick="prevStep(1)" data-i18n="step2_back">← Back</button>
+                    <button class="btn-next" onclick="nextStep(3)" disabled id="next2" data-i18n="step2_next">
+                        Next: Create Client →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 3: Create Client -->
+            <section class="tutorial-step" id="step3">
+                <div class="step-header">
+                    <h2 data-i18n="step3_heading">Step 3: Create the Client</h2>
+                    <p class="step-description" data-i18n="step3_description">
+                        Now let's create a client that can connect to our Calculator server and make IPC calls.
+                    </p>
+                </div>
+
+                <div class="playground-layout">
+                    <div class="code-editor-section">
+                        <div class="editor-header">
+                            <span class="file-name" data-i18n="step3_file">📄 client.rs</span>
+                            <span class="editor-hint" data-i18n="step3_edit_hint">Complete the client code!</span>
+                        </div>
+                        <div class="code-editor" contenteditable="true" id="editor3" spellcheck="false">
+<span class="comment">// Spawn the server process</span>
+<span class="keyword">let</span> (read_pipe, write_pipe) = spawn_server(
+    <span class="number">0</span>,
+    Source::CellDep,
+    &amp;[CString::new(<span class="string">"calculator"</span>).unwrap().as_ref()],
+)?;
+
+<span class="comment">// Create the client</span>
+<span class="keyword">let mut</span> client = CalculatorClient::new(read_pipe, write_pipe);
+
+<span class="comment">// TODO: Call the add method with arguments 5 and 3</span>
+<span class="keyword">let</span> result = <span class="comment">/* your code here */</span>;
+
+println!(<span class="string">"Result: {:?}"</span>, result);</div>
+                        <div class="editor-actions">
+                            <button class="btn-hint" onclick="showHint(3)" data-i18n="btn_hint">💡 Show Hint</button>
+                            <button class="btn-check" onclick="checkStep3()" data-i18n="btn_check">✓ Check Answer</button>
+                            <button class="btn-reset" onclick="resetEditor(3)" data-i18n="btn_reset">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="visualization-section">
+                        <h3 data-i18n="step3_connection">🔗 Connection Status</h3>
+                        <div class="connection-viz">
+                            <div class="client-box">
+                                <div class="box-icon">📱</div>
+                                <div class="box-label" data-i18n="step3_client">Client</div>
+                            </div>
+                            <div class="pipe-connection" id="pipeConnection">
+                                <div class="pipe read-pipe">
+                                    <span>read_pipe</span>
+                                    <div class="pipe-flow"></div>
+                                </div>
+                                <div class="pipe write-pipe">
+                                    <span>write_pipe</span>
+                                    <div class="pipe-flow reverse"></div>
+                                </div>
+                            </div>
+                            <div class="server-box-small">
+                                <div class="box-icon">🖥️</div>
+                                <div class="box-label" data-i18n="step3_server">Server</div>
+                            </div>
+                        </div>
+                        <div class="hint-box hidden" id="hint3">
+                            <strong data-i18n="step3_hint_title">💡 Hint:</strong> <span data-i18n="step3_hint_text">Call the add method like this:</span>
+                            <code>client.add(5, 3)</code>
+                        </div>
+                        <div class="success-box hidden" id="success3">
+                            <strong data-i18n="step3_success_title">🎉 Client Connected!</strong> <span data-i18n="step3_success_text">You've successfully set up the client. Now you're ready to send messages!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn-prev" onclick="prevStep(2)" data-i18n="step3_back">← Back</button>
+                    <button class="btn-next" onclick="nextStep(4)" disabled id="next3" data-i18n="step3_next">
+                        Next: Send Messages →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 4: Interactive Message Simulator -->
+            <section class="tutorial-step" id="step4">
+                <div class="step-header">
+                    <h2 data-i18n="step4_heading">Step 4: Send IPC Messages</h2>
+                    <p class="step-description" data-i18n="step4_description">
+                        Now let's see the IPC in action! Enter values and watch how messages flow between client and server.
+                    </p>
+                </div>
+
+                <div class="playground-layout full-width">
+                    <div class="ipc-simulator">
+                        <div class="simulator-controls">
+                            <h3 data-i18n="step4_simulator">🎮 IPC Simulator</h3>
+                            <div class="method-selector">
+                                <label data-i18n="step4_select_method">Select Method:</label>
+                                <select id="methodSelect">
+                                    <option value="add">add(a, b)</option>
+                                    <option value="multiply">multiply(a, b)</option>
+                                </select>
+                            </div>
+                            <div class="input-fields">
+                                <div class="input-group">
+                                    <label>a =</label>
+                                    <input type="number" id="inputA" value="5" min="-999" max="999">
+                                </div>
+                                <div class="input-group">
+                                    <label>b =</label>
+                                    <input type="number" id="inputB" value="3" min="-999" max="999">
+                                </div>
+                            </div>
+                            <button class="btn-send" onclick="sendIPCMessage()" data-i18n="step4_send">
+                                📤 Send Request
+                            </button>
+                        </div>
+
+                        <div class="ipc-visualization">
+                            <div class="ipc-client">
+                                <div class="component-header">
+                                    <span class="component-icon">📱</span>
+                                    <span data-i18n="step4_client">Client</span>
+                                </div>
+                                <div class="component-body">
+                                    <div class="code-display" id="clientCode">
+                                        <span class="comment" data-i18n="step4_ready">// Ready to send...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ipc-channel">
+                                <div class="channel-label" data-i18n="step4_channel">IPC Channel</div>
+                                <div class="message-container">
+                                    <div class="request-lane">
+                                        <span class="lane-label" data-i18n="step4_request">Request →</span>
+                                        <div class="message-packet" id="requestPacket">
+                                            <div class="packet-content"></div>
+                                        </div>
+                                    </div>
+                                    <div class="response-lane">
+                                        <span class="lane-label" data-i18n="step4_response">← Response</span>
+                                        <div class="message-packet" id="responsePacket">
+                                            <div class="packet-content"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ipc-server">
+                                <div class="component-header">
+                                    <span class="component-icon">🖥️</span>
+                                    <span data-i18n="step4_server">Server</span>
+                                </div>
+                                <div class="component-body">
+                                    <div class="code-display" id="serverCode">
+                                        <span class="comment" data-i18n="step4_waiting">// Waiting for request...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="packet-inspector">
+                            <h4 data-i18n="step4_packet_inspector">📦 Packet Inspector</h4>
+                            <div class="packet-details">
+                                <div class="packet-section">
+                                    <h5 data-i18n="step4_request_packet">Request Packet</h5>
+                                    <div class="packet-fields" id="requestFields">
+                                        <div class="field"><span class="field-name">version:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">method_id:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">length:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">payload:</span> <span class="field-value">-</span></div>
+                                    </div>
+                                </div>
+                                <div class="packet-section">
+                                    <h5 data-i18n="step4_response_packet">Response Packet</h5>
+                                    <div class="packet-fields" id="responseFields">
+                                        <div class="field"><span class="field-name">version:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">error_code:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">length:</span> <span class="field-value">-</span></div>
+                                        <div class="field"><span class="field-name">payload:</span> <span class="field-value">-</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-display" id="resultDisplay">
+                            <h4 data-i18n="step4_result">📊 Result</h4>
+                            <div class="result-value" id="resultValue" data-i18n="step4_result_hint">
+                                Press "Send Request" to execute an IPC call
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn-prev" onclick="prevStep(3)" data-i18n="step4_back">← Back</button>
+                    <button class="btn-next" onclick="nextStep(5)" id="next4" data-i18n="step4_next">
+                        Next: Challenge →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 5: Challenge -->
+            <section class="tutorial-step" id="step5">
+                <div class="step-header">
+                    <h2 data-i18n="step5_heading">🏆 Final Challenge</h2>
+                    <p class="step-description" data-i18n="step5_description">
+                        Time to test your knowledge! Complete this challenge to prove you understand CKB Script IPC.
+                    </p>
+                </div>
+
+                <div class="playground-layout">
+                    <div class="challenge-section">
+                        <div class="challenge-card">
+                            <h3 data-i18n="step5_challenge_title">🎯 Challenge: Build a Greeting Service</h3>
+                            <p data-i18n="step5_challenge_intro">Create an IPC service that:</p>
+                            <ol>
+                                <li data-i18n="step5_challenge_1">Has a method called <code>greet</code> that takes a <code>String</code> name</li>
+                                <li data-i18n="step5_challenge_2">Returns <code>Result&lt;String, u64&gt;</code></li>
+                                <li data-i18n="step5_challenge_3">Returns "Hello, {name}!" when successful</li>
+                            </ol>
+                        </div>
+
+                        <div class="editor-header">
+                            <span class="file-name" data-i18n="step5_file">📄 greeting_service.rs</span>
+                        </div>
+                        <div class="code-editor large" contenteditable="true" id="editor5" spellcheck="false">
+<span class="comment">// Define the interface</span>
+<span class="attribute">#[ckb_script_ipc::service]</span>
+<span class="keyword">pub trait</span> <span class="type">Greeter</span> {
+    <span class="comment">// TODO: Add greet method</span>
+    
+}
+
+<span class="comment">// Implement the server</span>
+<span class="keyword">struct</span> <span class="type">GreeterServer</span>;
+
+<span class="keyword">impl</span> <span class="type">Greeter</span> <span class="keyword">for</span> <span class="type">GreeterServer</span> {
+    <span class="comment">// TODO: Implement greet method</span>
+    
+}
+
+<span class="comment">// Client code</span>
+<span class="keyword">let mut</span> client = GreeterClient::new(read_pipe, write_pipe);
+<span class="keyword">let</span> result = <span class="comment">/* TODO: Call greet with "World" */</span>;
+<span class="comment">// Should print: "Hello, World!"</span></div>
+                        <div class="editor-actions">
+                            <button class="btn-hint" onclick="showHint(5)" data-i18n="btn_hint">💡 Show Hint</button>
+                            <button class="btn-check" onclick="checkChallenge()" data-i18n="step5_submit">🏆 Submit Challenge</button>
+                            <button class="btn-reset" onclick="resetEditor(5)" data-i18n="btn_reset">↺ Reset</button>
+                        </div>
+
+                        <div class="hint-box hidden" id="hint5">
+                            <strong data-i18n="step5_hints_title">💡 Hints:</strong>
+                            <ul>
+                                <li><span data-i18n="step5_hint_interface">Interface:</span> <code>fn greet(name: String) -> Result&lt;String, u64&gt;;</code></li>
+                                <li><span data-i18n="step5_hint_impl">Implementation:</span> <code>Ok(format!("Hello, {}!", name))</code></li>
+                                <li><span data-i18n="step5_hint_client">Client call:</span> <code>client.greet("World".into())</code></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="challenge-result-section">
+                        <div class="challenge-test" id="challengeTest">
+                            <h3 data-i18n="step5_test_title">🧪 Test Your Solution</h3>
+                            <div class="test-runner">
+                                <div class="test-case" id="test1">
+                                    <span class="test-icon">⏳</span>
+                                    <span class="test-name" data-i18n="step5_test1">Interface defines greet method</span>
+                                </div>
+                                <div class="test-case" id="test2">
+                                    <span class="test-icon">⏳</span>
+                                    <span class="test-name" data-i18n="step5_test2">Server implements greet</span>
+                                </div>
+                                <div class="test-case" id="test3">
+                                    <span class="test-icon">⏳</span>
+                                    <span class="test-name" data-i18n="step5_test3">Client calls greet correctly</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="completion-badge hidden" id="completionBadge">
+                            <div class="badge">
+                                <span class="badge-icon">🏆</span>
+                                <span class="badge-text" data-i18n="step5_badge_title">CKB Script IPC Master</span>
+                            </div>
+                            <p data-i18n="step5_badge_text">Congratulations! You've completed the interactive tutorial and now understand how to use CKB Script IPC!</p>
+                            <div class="next-steps">
+                                <h4 data-i18n="step5_next_steps">Next Steps:</h4>
+                                <ul>
+                                    <li>📖 <a href="https://github.com/gpBlockchain/ckb-script-ipc" target="_blank" data-i18n="step5_next_1">Explore the full documentation</a></li>
+                                    <li>💻 <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/contracts/ckb-script-ipc-demo" target="_blank" data-i18n="step5_next_2">Check out the demo project</a></li>
+                                    <li>🔐 <a href="https://github.com/gpBlockchain/ckb-script-ipc/tree/main/contracts/ckb-crypto-service" target="_blank" data-i18n="step5_next_3">See the crypto service example</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-navigation">
+                    <button class="btn-prev" onclick="prevStep(4)" data-i18n="step5_back">← Back</button>
+                    <button class="btn-restart" onclick="restartTutorial()" data-i18n="step5_restart">🔄 Restart Tutorial</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Quick Reference Panel -->
+    <aside class="quick-reference" id="quickReference">
+        <button class="toggle-reference" onclick="toggleReference()">📚</button>
+        <div class="reference-content">
+            <h3 data-i18n="ref_title">Quick Reference</h3>
+            <div class="reference-section">
+                <h4 data-i18n="ref_interface">Define Interface</h4>
+                <pre><code>#[ckb_script_ipc::service]
+pub trait MyService {
+    fn method(arg: Type) -> Result&lt;T, u64&gt;;
+}</code></pre>
+            </div>
+            <div class="reference-section">
+                <h4 data-i18n="ref_server">Implement Server</h4>
+                <pre><code>impl MyService for MyServer {
+    fn method(&mut self, arg: Type) -> Result&lt;T, u64&gt; {
+        Ok(result)
+    }
+}
+run_server(server.server())</code></pre>
+            </div>
+            <div class="reference-section">
+                <h4 data-i18n="ref_client">Create Client</h4>
+                <pre><code>let (r, w) = spawn_server(...)?;
+let mut client = MyServiceClient::new(r, w);
+let result = client.method(arg)?;</code></pre>
+            </div>
+        </div>
+    </aside>
+
+    <script src="i18n.js"></script>
+    <script src="playground.js"></script>
+</body>
+</html>
