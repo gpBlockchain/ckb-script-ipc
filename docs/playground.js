@@ -66,6 +66,10 @@ println!(<span class="string">"Result: {:?}"</span>, result);`,
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize i18n first
+    if (window.i18n) {
+        window.i18n.init();
+    }
     initStepButtons();
     updateProgress();
 });
@@ -163,9 +167,9 @@ function checkStep1() {
         // Enable next button
         document.getElementById('next1').disabled = false;
         
-        showNotification('✅ Correct! You\'ve defined the add method.', 'success');
+        showNotification(window.i18n ? window.i18n.t('notify_correct_add') : '✅ Correct! You\'ve defined the add method.', 'success');
     } else {
-        showNotification('❌ Not quite. Make sure to define the add method with correct types.', 'error');
+        showNotification(window.i18n ? window.i18n.t('notify_wrong_add') : '❌ Not quite. Make sure to define the add method with correct types.', 'error');
     }
 }
 
@@ -191,9 +195,9 @@ function checkStep2() {
         // Enable next button
         document.getElementById('next2').disabled = false;
         
-        showNotification('✅ Correct! Server implementation is complete.', 'success');
+        showNotification(window.i18n ? window.i18n.t('notify_correct_server') : '✅ Correct! Server implementation is complete.', 'success');
     } else {
-        showNotification('❌ Not quite. Return Ok(a + b) from the add method.', 'error');
+        showNotification(window.i18n ? window.i18n.t('notify_wrong_server') : '❌ Not quite. Return Ok(a + b) from the add method.', 'error');
     }
 }
 
@@ -217,9 +221,9 @@ function checkStep3() {
         // Enable next button
         document.getElementById('next3').disabled = false;
         
-        showNotification('✅ Correct! Client is ready to make IPC calls.', 'success');
+        showNotification(window.i18n ? window.i18n.t('notify_correct_client') : '✅ Correct! Client is ready to make IPC calls.', 'success');
     } else {
-        showNotification('❌ Not quite. Call client.add(5, 3) to make the IPC request.', 'error');
+        showNotification(window.i18n ? window.i18n.t('notify_wrong_client') : '❌ Not quite. Call client.add(5, 3) to make the IPC request.', 'error');
     }
 }
 
@@ -231,7 +235,7 @@ function sendIPCMessage() {
     
     // Validate inputs
     if (isNaN(a) || isNaN(b)) {
-        showNotification('❌ Please enter valid numbers.', 'error');
+        showNotification(window.i18n ? window.i18n.t('notify_invalid_input') : '❌ Please enter valid numbers.', 'error');
         return;
     }
     
@@ -308,7 +312,8 @@ function animateIPCFlow(method, a, b, result) {
         resultValue.innerHTML = `<span class="method-name">${method}(${a}, ${b})</span> = <span class="result-number">${result}</span>`;
         resultValue.classList.remove('error');
         
-        showNotification(`✅ IPC call successful! ${method}(${a}, ${b}) = ${result}`, 'success');
+        const successMsg = window.i18n ? window.i18n.t('notify_ipc_success') : '✅ IPC call successful!';
+        showNotification(`${successMsg} ${method}(${a}, ${b}) = ${result}`, 'success');
     }, 2200);
 }
 
@@ -344,12 +349,12 @@ function checkChallenge() {
         document.querySelector('.step-btn[data-step="5"]').classList.add('completed');
         updateProgress();
         
-        showNotification('🎉 Congratulations! You\'ve completed the CKB Script IPC tutorial!', 'success');
+        showNotification(window.i18n ? window.i18n.t('notify_challenge_complete') : '🎉 Congratulations! You\'ve completed the CKB Script IPC tutorial!', 'success');
         
         // Confetti effect
         createConfetti();
     } else {
-        showNotification('❌ Some tests failed. Check the hints and try again.', 'error');
+        showNotification(window.i18n ? window.i18n.t('notify_challenge_fail') : '❌ Some tests failed. Check the hints and try again.', 'error');
     }
 }
 
@@ -421,7 +426,7 @@ function restartTutorial() {
     // Go to step 1
     goToStep(1);
     
-    showNotification('🔄 Tutorial restarted. Let\'s go!', 'success');
+    showNotification(window.i18n ? window.i18n.t('notify_restart') : '🔄 Tutorial restarted. Let\'s go!', 'success');
 }
 
 // Confetti Effect
