@@ -5,6 +5,7 @@ generating Inter-Process Communication (IPC) code for CKB scripts, and a common
 runtime library for CKB script IPC functionality. The proc-macro library is
 inspired from [tarpc](https://github.com/google/tarpc).
 
+> 📖 **For AI Assistants**: See [AI_GUIDE.md](./docs/AI_GUIDE.md) for a comprehensive guide with templates, patterns, and quick-reference materials designed for AI-assisted development.
 
 ## Overview
 
