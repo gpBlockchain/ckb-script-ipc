@@ -107,6 +107,19 @@ code {
     color: var(--text-color);
 }
 
+.nav-links a.nav-highlight {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: white !important;
+    font-weight: 600;
+}
+
+.nav-links a.nav-highlight:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
 .btn-github {
     display: flex;
     align-items: center;
