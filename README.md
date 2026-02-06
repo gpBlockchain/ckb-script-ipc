@@ -11,6 +11,7 @@ This project uses a proposal system inspired by Ethereum's EIP process for defin
 
 - [CIP-0001: CIP Purpose and Guidelines](./CIPs/cip-0001.md) - How to create and submit proposals
 - [CIP-0002: Standard Crypto Service Interface](./CIPs/cip-0002.md) - Standard interface for cryptographic services
+- [CIP-0100: Standard Token Service Interface](./CIPs/cip-0100.md) - ERC-20-like token standard for CKB scripts
 - [CIP-2001: Standard Key-Value Storage Service Interface](./CIPs/cip-2001.md) - Standard interface for key-value storage services
 
 ## Overview
