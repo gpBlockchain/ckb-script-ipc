@@ -5,6 +5,12 @@ generating Inter-Process Communication (IPC) code for CKB scripts, and a common
 runtime library for CKB script IPC functionality. The proc-macro library is
 inspired from [tarpc](https://github.com/google/tarpc).
 
+## CIPs (CKB Script IPC Proposals)
+
+This project uses a proposal system inspired by Ethereum's EIP process for defining standards and interfaces. See the [CIPs directory](./CIPs/) for:
+
+- [CIP-0001: CIP Purpose and Guidelines](./CIPs/cip-0001.md) - How to create and submit proposals
+- [CIP-0002: Standard Crypto Service Interface](./CIPs/cip-0002.md) - Standard interface for cryptographic services
 
 ## Overview
 
