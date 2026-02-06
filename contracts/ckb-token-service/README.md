@@ -53,31 +53,49 @@ The CKB Token Service provides an ERC-20-like token interface for CKB scripts vi
 
 ### Reading Cell Data with ckb-std
 
+**⚠️ Important: Always Filter by Type Script!**
+
+A CKB transaction can contain multiple cell types. You MUST filter by type script to only process cells belonging to your specific token:
+
 ```rust
-use ckb_std::high_level::{load_cell_data, load_script_hash};
+use ckb_std::high_level::{load_cell_data, load_cell_type_hash, load_script_hash};
 use ckb_std::ckb_constants::Source;
 
-// Load data from an input cell
-let data = load_cell_data(0, Source::Input)?;
+// Get current script hash (identifies THIS token type)
+let current_type_hash = load_script_hash()?;
 
-// Load current script hash
-let script_hash = load_script_hash()?;
+let mut total_amount: u128 = 0;
 
-// Iterate through all input cells and sum token amounts
-// Note: CKB's Simple UDT standard uses u128 (16 bytes, little-endian) for token amounts
-// This interface uses U256 for compatibility with larger token amounts
+// Iterate through input cells
 for i in 0.. {
+    // STEP 1: Check if this cell has our token's type script
+    let type_hash = match load_cell_type_hash(i, Source::Input) {
+        Ok(Some(hash)) => hash,
+        Ok(None) => continue,  // No type script = plain CKB cell, SKIP
+        Err(_) => break,       // No more cells
+    };
+    
+    // STEP 2: Only process cells matching our token type
+    if type_hash != current_type_hash {
+        continue; // Different token (or other cell type), SKIP
+    }
+    
+    // STEP 3: Now safe to read - this cell IS our token
     match load_cell_data(i, Source::Input) {
         Ok(data) if data.len() >= 16 => {
             // Simple UDT uses u128 (little-endian, 16 bytes)
             let amount = u128::from_le_bytes(data[0..16].try_into().unwrap());
-            // Convert to U256 for this interface
-            let amount_u256 = U256::from_u128(amount);
+            total_amount += amount;
         }
-        _ => break, // No more cells
+        _ => {} // Invalid data format
     }
 }
 ```
+
+**Why filtering is critical:**
+- A transaction may include CKB capacity cells (no type script)
+- A transaction may include other token cells (different type script)  
+- Without filtering, you'd incorrectly process non-token data as token amounts
 
 ### As a Server
 

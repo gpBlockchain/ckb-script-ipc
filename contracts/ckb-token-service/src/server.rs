@@ -19,29 +19,37 @@
 //! 2. **Lock Script**: Owner's address (who can spend the cell)
 //! 3. **Type Script**: Token type identifier (ensures token rules are followed)
 //!
-//! This service demonstrates the IPC interface pattern. In a real implementation:
-//! - Balance queries would read from cells via `ckb_std::high_level::load_cell_data()`
-//! - Transfers would be validated by checking input/output cell balances
-//! - The script verifies that sum(inputs) >= sum(outputs) for the token
+//! # Important: Filtering by Type Script
 //!
-//! # Example: Reading Cell Data with ckb-std
+//! When iterating through cells, you MUST filter by type script to only process
+//! cells belonging to your specific token. A transaction can contain multiple
+//! cell types (CKB capacity cells, different tokens, etc.).
 //!
 //! ```ignore
-//! use ckb_std::high_level::{load_cell_data, load_script_hash};
+//! use ckb_std::high_level::{load_cell_type, load_cell_type_hash, load_script_hash};
 //! use ckb_std::ckb_constants::Source;
 //!
-//! // Load data from an input cell
-//! let data = load_cell_data(0, Source::Input)?;
+//! // Get current script hash (this token's type script)
+//! let current_script_hash = load_script_hash()?;
 //!
-//! // Load current script hash (for identifying the token type)
-//! let script_hash = load_script_hash()?;
+//! // Only process cells with matching type script
+//! for i in 0.. {
+//!     match load_cell_type_hash(i, Source::Input)? {
+//!         Some(type_hash) if type_hash == current_script_hash => {
+//!             // This cell belongs to our token, process it
+//!             let data = load_cell_data(i, Source::Input)?;
+//!         }
+//!         Some(_) => continue, // Different token type, skip
+//!         None => continue,    // No type script (plain CKB cell), skip
+//!     }
+//! }
 //! ```
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use ckb_script_ipc_common::spawn::run_server;
 use ckb_std::ckb_constants::Source;
-use ckb_std::high_level::{load_cell_data, load_witness_args};
+use ckb_std::high_level::{load_cell_data, load_cell_type_hash, load_script_hash, load_witness_args};
 use ckb_token_interface::{Address, CkbToken, TokenError, U256};
 
 use crate::error::Error;
@@ -192,6 +200,14 @@ impl TokenServer {
     /// In CKB's UDT model, the balance is stored in the cell's data field.
     /// This function demonstrates how to read balance from input cells.
     /// 
+    /// # Important: Type Script Filtering
+    /// 
+    /// You MUST filter cells by type script hash to only process cells belonging
+    /// to THIS token. A transaction may contain many different cell types:
+    /// - Plain CKB capacity cells (no type script)
+    /// - Other UDT token cells (different type script)
+    /// - NFT cells, etc.
+    /// 
     /// # Arguments
     /// * `owner` - The address (script hash) of the token owner
     /// 
@@ -199,23 +215,38 @@ impl TokenServer {
     /// The token balance found in cells belonging to this owner
     fn read_balance_from_cells(&self, _owner: &Address) -> U256 {
         // In CKB, to get a user's balance, you would:
-        // 1. Iterate through cells with the token's type script
-        // 2. Check if the cell's lock script hash matches the owner
-        // 3. Sum up the token amounts in those cells
+        // 1. Get the current script hash (identifies this token type)
+        // 2. Iterate through cells, FILTERING by type script
+        // 3. Check if the cell's lock script hash matches the owner
+        // 4. Sum up the token amounts in those cells
         //
-        // Note: CKB's Simple UDT uses u128 (16 bytes) for token amounts.
-        // This example shows a simplified pattern:
+        // CORRECT PATTERN - Filter by type script:
         //
+        // let current_type_hash = load_script_hash().expect("get script hash");
         // let mut balance = U256::ZERO;
+        // 
         // for i in 0.. {
+        //     // IMPORTANT: Check type script hash first!
+        //     let type_hash = match load_cell_type_hash(i, Source::Input) {
+        //         Ok(Some(hash)) => hash,
+        //         Ok(None) => continue,  // No type script = not a token cell, SKIP
+        //         Err(_) => break,       // No more cells
+        //     };
+        //     
+        //     // Only process cells with OUR token's type script
+        //     if type_hash != current_type_hash {
+        //         continue; // Different token type, SKIP
+        //     }
+        //     
+        //     // Now safe to read cell data - this IS our token
         //     match load_cell_data(i, Source::Input) {
         //         Ok(data) if data.len() >= 16 => {
-        //             // Simple UDT uses u128 (little-endian)
+        //             // Simple UDT uses u128 (little-endian, 16 bytes)
         //             let amount_bytes: [u8; 16] = data[0..16].try_into().unwrap();
         //             let amount = u128::from_le_bytes(amount_bytes);
         //             balance = balance.checked_add(&U256::from_u128(amount)).unwrap_or(U256::MAX);
         //         }
-        //         _ => break,
+        //         _ => {} // Invalid data format
         //     }
         // }
         // balance
