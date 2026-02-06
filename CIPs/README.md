@@ -25,6 +25,12 @@ CIPs are inspired by [Ethereum's EIP process](https://eips.ethereum.org/) and ad
 |-----|-------|--------|
 | [CIP-0002](./cip-0002.md) | Standard Crypto Service Interface | Draft |
 
+### Standards Track CIPs - Storage
+
+| CIP | Title | Status |
+|-----|-------|--------|
+| [CIP-2001](./cip-2001.md) | Standard Key-Value Storage Service Interface | Draft |
+
 ## Contributing
 
 To propose a new CIP:
