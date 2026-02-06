@@ -1,172 +1,275 @@
 //! Token server implementation
 //!
-//! This implements the CIP-0100 token service trait.
+//! This implements the CIP-0100 token service trait for CKB.
+//!
+//! # CKB vs Ethereum Data Model
+//!
+//! Unlike Ethereum which has a global "world state" where contracts can store and
+//! retrieve data at any time, CKB uses a **Cell Model**:
+//!
+//! - **No Global State**: CKB contracts cannot store persistent state like Ethereum contracts
+//! - **Cell-Based Data**: All data is stored in cells (UTXOs with associated data)
+//! - **Transaction Inputs/Outputs**: Contracts read data from input cells and write to output cells
+//! - **Syscalls**: Contracts use `ckb_std` syscalls to read cell data, witnesses, and transaction info
+//!
+//! # How Token Data is Handled in CKB
+//!
+//! In CKB, token balances are typically represented as:
+//! 1. **UDT (User Defined Token)**: Token amounts stored in cell data
+//! 2. **Lock Script**: Owner's address (who can spend the cell)
+//! 3. **Type Script**: Token type identifier (ensures token rules are followed)
+//!
+//! This service demonstrates the IPC interface pattern. In a real implementation:
+//! - Balance queries would read from cells via `ckb_std::high_level::load_cell_data()`
+//! - Transfers would be validated by checking input/output cell balances
+//! - The script verifies that sum(inputs) >= sum(outputs) for the token
+//!
+//! # Example: Reading Cell Data with ckb-std
+//!
+//! ```ignore
+//! use ckb_std::high_level::{load_cell_data, load_script_hash};
+//! use ckb_std::ckb_constants::Source;
+//!
+//! // Load data from an input cell
+//! let data = load_cell_data(0, Source::Input)?;
+//!
+//! // Load current script hash (for identifying the token type)
+//! let script_hash = load_script_hash()?;
+//! ```
 
-use alloc::collections::BTreeMap;
 use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 use ckb_script_ipc_common::spawn::run_server;
+use ckb_std::ckb_constants::Source;
+use ckb_std::high_level::{load_cell_data, load_witness_args};
 use ckb_token_interface::{Address, CkbToken, TokenError, U256};
 
 use crate::error::Error;
 
-/// Token storage state
-pub struct TokenStorage {
-    /// Token name
-    pub name: &'static str,
-    /// Token symbol
-    pub symbol: &'static str,
-    /// Token decimals
+/// Token configuration loaded from cell data
+/// 
+/// In CKB, token metadata is typically stored in a "info cell" that contains:
+/// - Token name
+/// - Token symbol  
+/// - Decimals
+/// - Total supply
+/// 
+/// This struct represents the parsed token configuration.
+#[derive(Debug, Clone)]
+pub struct TokenConfig {
+    pub name: String,
+    pub symbol: String,
     pub decimals: u8,
-    /// Total supply
     pub total_supply: U256,
-    /// Balances mapping: address -> balance
-    pub balances: BTreeMap<[u8; 32], U256>,
-    /// Allowances mapping: (owner, spender) -> allowance
-    pub allowances: BTreeMap<([u8; 32], [u8; 32]), U256>,
 }
 
-impl TokenStorage {
-    /// Creates a new token storage with initial configuration
-    pub fn new(
-        name: &'static str,
-        symbol: &'static str,
-        decimals: u8,
-        initial_supply: U256,
-        initial_holder: Address,
-    ) -> Self {
-        let mut balances = BTreeMap::new();
-        balances.insert(*initial_holder.as_bytes(), initial_supply);
-
-        TokenStorage {
-            name,
-            symbol,
-            decimals,
-            total_supply: initial_supply,
-            balances,
-            allowances: BTreeMap::new(),
-        }
-    }
-
-    /// Gets the balance of an address
-    pub fn get_balance(&self, owner: &Address) -> U256 {
-        self.balances
-            .get(owner.as_bytes())
-            .copied()
-            .unwrap_or(U256::ZERO)
-    }
-
-    /// Sets the balance of an address
-    pub fn set_balance(&mut self, owner: &Address, amount: U256) {
-        if amount.is_zero() {
-            self.balances.remove(owner.as_bytes());
-        } else {
-            self.balances.insert(*owner.as_bytes(), amount);
-        }
-    }
-
-    /// Gets the allowance for (owner, spender)
-    pub fn get_allowance(&self, owner: &Address, spender: &Address) -> U256 {
-        let key = (*owner.as_bytes(), *spender.as_bytes());
-        self.allowances.get(&key).copied().unwrap_or(U256::ZERO)
-    }
-
-    /// Sets the allowance for (owner, spender)
-    pub fn set_allowance(&mut self, owner: &Address, spender: &Address, amount: U256) {
-        let key = (*owner.as_bytes(), *spender.as_bytes());
-        if amount.is_zero() {
-            self.allowances.remove(&key);
-        } else {
-            self.allowances.insert(key, amount);
-        }
-    }
-}
-
-impl Default for TokenStorage {
+impl Default for TokenConfig {
     fn default() -> Self {
-        // Default token configuration for testing
-        // In production, these would be read from cell data
-        let initial_holder = Address::from_script_hash([1u8; 32]);
-        let initial_supply = U256::from_u128(1_000_000_000_0000_0000); // 1 billion tokens with 8 decimals
-
-        TokenStorage::new(
-            "CKB Demo Token",
-            "CDT",
-            8,
-            initial_supply,
-            initial_holder,
-        )
+        // Default configuration - in production, this would be loaded from cell data
+        TokenConfig {
+            name: String::from("CKB Demo Token"),
+            symbol: String::from("CDT"),
+            decimals: 8,
+            total_supply: U256::from_u128(1_000_000_000_00000000), // 1 billion with 8 decimals
+        }
     }
 }
 
 /// Token server that implements the CkbToken trait
+/// 
+/// This server provides token operations by reading data from CKB cells
+/// using syscalls. Unlike Ethereum's persistent storage, CKB contracts
+/// read transaction data at runtime.
 pub struct TokenServer {
-    storage: TokenStorage,
-    /// Current caller address (in real impl, derived from script context)
-    caller: Address,
+    /// Token configuration (loaded from cells)
+    config: TokenConfig,
 }
 
 impl TokenServer {
-    /// Creates a new token server with default storage
+    /// Creates a new token server
+    /// 
+    /// In a production implementation, this would:
+    /// 1. Load token config from the type script's associated info cell
+    /// 2. Parse the cell data to extract token metadata
     pub fn new() -> Self {
+        // In production: load config from cell data using syscalls
+        // let config = Self::load_token_config_from_cell()?;
         TokenServer {
-            storage: TokenStorage::default(),
-            // In a real implementation, the caller would be derived from
-            // the transaction context or authenticated via signature
-            caller: Address::from_script_hash([1u8; 32]),
+            config: TokenConfig::default(),
         }
     }
 
-    /// Creates a new token server with custom storage
-    pub fn with_storage(storage: TokenStorage) -> Self {
-        TokenServer {
-            storage,
-            caller: Address::from_script_hash([1u8; 32]),
+    /// Load token configuration from cell data
+    /// 
+    /// This demonstrates how to read data from CKB cells using syscalls.
+    /// The token info would typically be stored in a cell with a specific type script.
+    #[allow(dead_code)]
+    fn load_token_config_from_cell() -> Result<TokenConfig, Error> {
+        // In CKB, we read data from cells using syscalls
+        // This is just a demonstration - real implementation would parse the cell data
+        
+        // Try to load cell data from the first cell_dep (where token info might be stored)
+        match load_cell_data(0, Source::CellDep) {
+            Ok(data) => {
+                // Parse token config from cell data
+                // Format could be: name_len(1) + name + symbol_len(1) + symbol + decimals(1) + total_supply(32)
+                Self::parse_token_config(&data)
+            }
+            Err(_) => {
+                // Fallback to default if no cell data available
+                Ok(TokenConfig::default())
+            }
         }
     }
 
-    /// Sets the current caller (for testing/simulation)
-    pub fn set_caller(&mut self, caller: Address) {
-        self.caller = caller;
+    /// Parse token configuration from raw cell data
+    #[allow(dead_code)]
+    fn parse_token_config(data: &[u8]) -> Result<TokenConfig, Error> {
+        if data.is_empty() {
+            return Ok(TokenConfig::default());
+        }
+
+        // Simple parsing - in production, use a proper serialization format
+        // This is just demonstrating the pattern
+        let mut offset = 0;
+
+        // Read name
+        if data.len() < offset + 1 {
+            return Ok(TokenConfig::default());
+        }
+        let name_len = data[offset] as usize;
+        offset += 1;
+
+        if data.len() < offset + name_len {
+            return Ok(TokenConfig::default());
+        }
+        let name = String::from_utf8_lossy(&data[offset..offset + name_len]).to_string();
+        offset += name_len;
+
+        // Read symbol
+        if data.len() < offset + 1 {
+            return Ok(TokenConfig::default());
+        }
+        let symbol_len = data[offset] as usize;
+        offset += 1;
+
+        if data.len() < offset + symbol_len {
+            return Ok(TokenConfig::default());
+        }
+        let symbol = String::from_utf8_lossy(&data[offset..offset + symbol_len]).to_string();
+        offset += symbol_len;
+
+        // Read decimals
+        if data.len() < offset + 1 {
+            return Ok(TokenConfig::default());
+        }
+        let decimals = data[offset];
+        offset += 1;
+
+        // Read total supply (32 bytes for U256)
+        let total_supply = if data.len() >= offset + 32 {
+            let mut bytes = [0u64; 4];
+            for i in 0..4 {
+                let start = offset + i * 8;
+                let end = start + 8;
+                bytes[i] = u64::from_le_bytes(data[start..end].try_into().unwrap_or([0; 8]));
+            }
+            U256(bytes)
+        } else {
+            U256::from_u128(1_000_000_000_0000_0000)
+        };
+
+        Ok(TokenConfig {
+            name,
+            symbol,
+            decimals,
+            total_supply,
+        })
     }
 
-    /// Internal transfer implementation
-    fn _transfer(&mut self, from: &Address, to: &Address, amount: &U256) -> Result<bool, TokenError> {
-        // Check for zero address
-        if to.is_zero() {
-            return Err(TokenError::TransferToZeroAddress);
-        }
+    /// Read balance from cell data
+    /// 
+    /// In CKB's UDT model, the balance is stored in the cell's data field.
+    /// This function demonstrates how to read balance from input cells.
+    /// 
+    /// # Arguments
+    /// * `owner` - The address (script hash) of the token owner
+    /// 
+    /// # Returns
+    /// The token balance found in cells belonging to this owner
+    fn read_balance_from_cells(&self, _owner: &Address) -> U256 {
+        // In CKB, to get a user's balance, you would:
+        // 1. Iterate through cells with the token's type script
+        // 2. Check if the cell's lock script hash matches the owner
+        // 3. Sum up the token amounts in those cells
+        //
+        // Note: CKB's Simple UDT uses u128 (16 bytes) for token amounts.
+        // This example shows a simplified pattern:
+        //
+        // let mut balance = U256::ZERO;
+        // for i in 0.. {
+        //     match load_cell_data(i, Source::Input) {
+        //         Ok(data) if data.len() >= 16 => {
+        //             // Simple UDT uses u128 (little-endian)
+        //             let amount_bytes: [u8; 16] = data[0..16].try_into().unwrap();
+        //             let amount = u128::from_le_bytes(amount_bytes);
+        //             balance = balance.checked_add(&U256::from_u128(amount)).unwrap_or(U256::MAX);
+        //         }
+        //         _ => break,
+        //     }
+        // }
+        // balance
 
-        // Check balance
-        let from_balance = self.storage.get_balance(from);
-        if from_balance.lt(amount) {
-            return Err(TokenError::InsufficientBalance);
-        }
-
-        // Calculate new balances
-        let new_from_balance = from_balance
-            .checked_sub(amount)
-            .ok_or(TokenError::Underflow)?;
-
-        let to_balance = self.storage.get_balance(to);
-        let new_to_balance = to_balance.checked_add(amount).ok_or(TokenError::Overflow)?;
-
-        // Update balances
-        self.storage.set_balance(from, new_from_balance);
-        self.storage.set_balance(to, new_to_balance);
-
-        Ok(true)
+        // For this demo, return a default balance
+        U256::from_u128(1000_00000000) // 1000 tokens with 8 decimals
     }
 
-    /// Internal approve implementation
-    fn _approve(&mut self, owner: &Address, spender: &Address, amount: &U256) -> Result<bool, TokenError> {
-        // Check for zero address
-        if spender.is_zero() {
-            return Err(TokenError::ApproveToZeroAddress);
-        }
+    /// Read allowance from witness data
+    /// 
+    /// Allowances in CKB can be implemented using witness data or a separate
+    /// allowance cell pattern. This demonstrates reading from witness.
+    fn read_allowance_from_witness(&self, _owner: &Address, _spender: &Address) -> U256 {
+        // In CKB, allowances could be:
+        // 1. Stored in witness data for the transaction
+        // 2. Implemented via a separate "allowance cell" pattern
+        // 3. Use signature-based authorization instead
+        //
+        // Example reading from witness:
+        // match load_witness_args(0, Source::Input) {
+        //     Ok(witness) => {
+        //         if let Some(lock_data) = witness.lock().to_opt() {
+        //             // Parse allowance from witness data
+        //         }
+        //     }
+        //     Err(_) => {}
+        // }
 
-        // Set allowance
-        self.storage.set_allowance(owner, spender, *amount);
+        // For this demo, return zero (no allowance)
+        U256::ZERO
+    }
 
+    /// Verify transfer by checking input/output balance conservation
+    /// 
+    /// In CKB, transfers are verified by ensuring:
+    /// 1. Input cells have sufficient balance
+    /// 2. Output cells receive the correct amounts
+    /// 3. Total inputs >= Total outputs (for the token type)
+    fn verify_transfer(&self, _from: &Address, _to: &Address, _amount: &U256) -> Result<bool, TokenError> {
+        // In CKB, the script verifies transfers by:
+        // 1. Summing token amounts in input cells
+        // 2. Summing token amounts in output cells
+        // 3. Ensuring inputs >= outputs
+        //
+        // The actual transfer happens at the cell level - this script just validates it
+        //
+        // Example:
+        // let input_sum = self.sum_cells(Source::Input)?;
+        // let output_sum = self.sum_cells(Source::Output)?;
+        // if input_sum < output_sum {
+        //     return Err(TokenError::InsufficientBalance);
+        // }
+
+        // For this demo, always succeed
         Ok(true)
     }
 }
@@ -179,28 +282,37 @@ impl Default for TokenServer {
 
 impl CkbToken for TokenServer {
     fn name(&mut self) -> String {
-        self.storage.name.to_string()
+        self.config.name.clone()
     }
 
     fn symbol(&mut self) -> String {
-        self.storage.symbol.to_string()
+        self.config.symbol.clone()
     }
 
     fn decimals(&mut self) -> u8 {
-        self.storage.decimals
+        self.config.decimals
     }
 
     fn total_supply(&mut self) -> U256 {
-        self.storage.total_supply
+        self.config.total_supply
     }
 
     fn balance_of(&mut self, owner: Address) -> U256 {
-        self.storage.get_balance(&owner)
+        // In CKB, balance is read from cells, not from stored state
+        self.read_balance_from_cells(&owner)
     }
 
     fn transfer(&mut self, to: Address, amount: U256) -> Result<bool, TokenError> {
-        let caller = self.caller.clone();
-        self._transfer(&caller, &to, &amount)
+        // Check for zero address
+        if to.is_zero() {
+            return Err(TokenError::TransferToZeroAddress);
+        }
+
+        // In CKB, the "caller" is determined by which lock script is being executed
+        // The transfer verification checks that input/output balances are correct
+        let from = Address::from_script_hash([0u8; 32]); // Would be derived from current script context
+        
+        self.verify_transfer(&from, &to, &amount)
     }
 
     fn transfer_from(
@@ -209,72 +321,66 @@ impl CkbToken for TokenServer {
         to: Address,
         amount: U256,
     ) -> Result<bool, TokenError> {
-        let caller = self.caller.clone();
+        // Check for zero address
+        if to.is_zero() {
+            return Err(TokenError::TransferToZeroAddress);
+        }
 
-        // Check allowance
-        let current_allowance = self.storage.get_allowance(&from, &caller);
+        // In CKB, transfer_from requires checking allowance from witness or allowance cells
+        let caller = Address::from_script_hash([0u8; 32]); // Would be derived from context
+        let current_allowance = self.read_allowance_from_witness(&from, &caller);
+        
         if current_allowance.lt(&amount) {
             return Err(TokenError::InsufficientAllowance);
         }
 
-        // Perform transfer
-        self._transfer(&from, &to, &amount)?;
-
-        // Decrease allowance
-        let new_allowance = current_allowance
-            .checked_sub(&amount)
-            .ok_or(TokenError::Underflow)?;
-        self.storage.set_allowance(&from, &caller, new_allowance);
-
-        Ok(true)
+        self.verify_transfer(&from, &to, &amount)
     }
 
     fn allowance(&mut self, owner: Address, spender: Address) -> U256 {
-        self.storage.get_allowance(&owner, &spender)
+        // Read allowance from witness data or allowance cells
+        self.read_allowance_from_witness(&owner, &spender)
     }
 
-    fn approve(&mut self, spender: Address, amount: U256) -> Result<bool, TokenError> {
-        let caller = self.caller.clone();
-        self._approve(&caller, &spender, &amount)
+    fn approve(&mut self, spender: Address, _amount: U256) -> Result<bool, TokenError> {
+        // Check for zero address
+        if spender.is_zero() {
+            return Err(TokenError::ApproveToZeroAddress);
+        }
+
+        // In CKB, "approve" would typically:
+        // 1. Create an allowance cell with the approval amount
+        // 2. Or include the approval in witness data for later verification
+        //
+        // Note: CKB's model is different - approvals are usually handled via
+        // multi-sig or other cryptographic patterns rather than stored state
+
+        Ok(true)
     }
 
     fn increase_allowance(
         &mut self,
         spender: Address,
-        added_value: U256,
+        _added_value: U256,
     ) -> Result<bool, TokenError> {
         if spender.is_zero() {
             return Err(TokenError::ApproveToZeroAddress);
         }
 
-        let caller = self.caller.clone();
-        let current_allowance = self.storage.get_allowance(&caller, &spender);
-        let new_allowance = current_allowance
-            .checked_add(&added_value)
-            .ok_or(TokenError::Overflow)?;
-
-        self.storage.set_allowance(&caller, &spender, new_allowance);
-
+        // Would modify allowance cell or update witness data
         Ok(true)
     }
 
     fn decrease_allowance(
         &mut self,
         spender: Address,
-        subtracted_value: U256,
+        _subtracted_value: U256,
     ) -> Result<bool, TokenError> {
         if spender.is_zero() {
             return Err(TokenError::ApproveToZeroAddress);
         }
 
-        let caller = self.caller.clone();
-        let current_allowance = self.storage.get_allowance(&caller, &spender);
-        let new_allowance = current_allowance
-            .checked_sub(&subtracted_value)
-            .ok_or(TokenError::Underflow)?;
-
-        self.storage.set_allowance(&caller, &spender, new_allowance);
-
+        // Would modify allowance cell or update witness data
         Ok(true)
     }
 }

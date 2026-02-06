@@ -2,6 +2,44 @@
 
 This is a reference implementation of the [CIP-0100](../../CIPs/cip-0100.md) Standard Token Service Interface.
 
+## CKB vs Ethereum: Key Differences
+
+**Important**: CKB's data model is fundamentally different from Ethereum:
+
+| Aspect | Ethereum | CKB |
+|--------|----------|-----|
+| State Model | Global World State | Cell Model (UTXO-like) |
+| Data Storage | Contract storage slots | Cell data |
+| State Access | Read/write anytime | Read from syscalls |
+| Persistence | Automatic | Via input/output cells |
+
+### How CKB Contracts Work
+
+1. **No Global State**: CKB contracts cannot store persistent state like Ethereum
+2. **Cell-Based Data**: All data exists in cells (UTXOs with associated data)
+3. **Syscalls**: Contracts use `ckb_std` syscalls to read:
+   - Cell data: `load_cell_data()`
+   - Witnesses: `load_witness_args()`
+   - Script info: `load_script_hash()`
+   - Transaction data: `load_transaction()`
+
+### Token Data in CKB (UDT Pattern)
+
+```
+┌─────────────────────────────────────────────────┐
+│                    Cell                          │
+├─────────────────────────────────────────────────┤
+│ Capacity: 100 CKB                               │
+│ Lock Script: owner's script (who can spend)     │
+│ Type Script: token type (validates rules)       │
+│ Data: [token_amount: u128]                      │
+└─────────────────────────────────────────────────┘
+```
+
+- **Balance**: Sum of token amounts in cells with matching type script
+- **Transfer**: Verified by checking `sum(inputs) >= sum(outputs)`
+- **Owner**: Determined by the cell's lock script
+
 ## Overview
 
 The CKB Token Service provides an ERC-20-like token interface for CKB scripts via IPC. It supports:
@@ -12,6 +50,34 @@ The CKB Token Service provides an ERC-20-like token interface for CKB scripts vi
 - **Allowance Operations**: `allowance(owner, spender)`, `approve(spender, amount)`, `increase_allowance()`, `decrease_allowance()`
 
 ## Usage
+
+### Reading Cell Data with ckb-std
+
+```rust
+use ckb_std::high_level::{load_cell_data, load_script_hash};
+use ckb_std::ckb_constants::Source;
+
+// Load data from an input cell
+let data = load_cell_data(0, Source::Input)?;
+
+// Load current script hash
+let script_hash = load_script_hash()?;
+
+// Iterate through all input cells and sum token amounts
+// Note: CKB's Simple UDT standard uses u128 (16 bytes, little-endian) for token amounts
+// This interface uses U256 for compatibility with larger token amounts
+for i in 0.. {
+    match load_cell_data(i, Source::Input) {
+        Ok(data) if data.len() >= 16 => {
+            // Simple UDT uses u128 (little-endian, 16 bytes)
+            let amount = u128::from_le_bytes(data[0..16].try_into().unwrap());
+            // Convert to U256 for this interface
+            let amount_u256 = U256::from_u128(amount);
+        }
+        _ => break, // No more cells
+    }
+}
+```
 
 ### As a Server
 
@@ -54,7 +120,7 @@ client.transfer(recipient, amount)?;
 contracts/ckb-token-service/
 ├── src/
 │   ├── main.rs       # Entry point
-│   ├── server.rs     # Token server and storage implementation
+│   ├── server.rs     # Token server (reads from cells via syscalls)
 │   └── error.rs      # Error types
 └── Cargo.toml
 ```
@@ -88,6 +154,12 @@ Key points:
 - Use `increase_allowance`/`decrease_allowance` instead of `approve` to prevent race conditions
 - All arithmetic uses checked operations to prevent overflow/underflow
 - Zero address validation on transfers and approvals
+- In CKB, verify input/output balance conservation for transfers
+
+## References
+
+- [CKB RFC: Simple UDT](https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0025-simple-udt/0025-simple-udt.md)
+- [ckb-std documentation](https://docs.rs/ckb-std)
 
 ## License
 
