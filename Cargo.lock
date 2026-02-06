@@ -690,6 +690,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "ckb-token-interface"
+version = "0.1.0"
+dependencies = [
+ "ckb-script-ipc",
+ "ckb-script-ipc-common",
+ "serde",
+]
+
+[[package]]
+name = "ckb-token-service"
+version = "0.1.0"
+dependencies = [
+ "ckb-script-ipc",
+ "ckb-script-ipc-common",
+ "ckb-std",
+ "ckb-token-interface",
+ "serde",
+]
+
+[[package]]
 name = "ckb-traits"
 version = "0.200.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

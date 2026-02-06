@@ -1,0 +1,12 @@
+[package]
+name = "ckb-token-service"
+version = "0.1.0"
+edition = "2021"
+description = "CIP-0100 Standard Token Service Implementation for CKB Script IPC"
+
+[dependencies]
+ckb-std = { version = "0.17", default-features = false, features = ["allocator", "ckb-types", "dummy-atomic", "log"]}
+ckb-script-ipc-common = { path = "../../crates/ckb-script-ipc-common" }
+ckb-script-ipc = { path = "../../crates/ckb-script-ipc" }
+ckb-token-interface = { path = "../../crates/ckb-token-interface" }
+serde = { version = "1.0", default-features = false, features = ["derive"] }

@@ -14,6 +14,11 @@ This project uses a proposal system inspired by Ethereum's EIP process for defin
 - [CIP-0100: Standard Token Service Interface](./CIPs/cip-0100.md) - ERC-20-like token standard for CKB scripts
 - [CIP-2001: Standard Key-Value Storage Service Interface](./CIPs/cip-2001.md) - Standard interface for key-value storage services
 
+### Reference Implementations
+
+- **[ckb-crypto-service](./contracts/ckb-crypto-service/)** - CIP-0002 crypto service implementation
+- **[ckb-token-service](./contracts/ckb-token-service/)** - CIP-0100 token service implementation (ERC-20-like)
+
 ## Overview
 
 The `ckb-script-ipc` crate provides procedural macros that simplify the process
