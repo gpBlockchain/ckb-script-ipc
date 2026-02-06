@@ -1,0 +1,10 @@
+[package]
+name = "ckb-token-interface"
+version = "0.1.0"
+edition = "2021"
+description = "CIP-0100 Standard Token Service Interface for CKB Script IPC"
+
+[dependencies]
+ckb-script-ipc-common = { path = "../ckb-script-ipc-common" }
+ckb-script-ipc = { path = "../ckb-script-ipc" }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
