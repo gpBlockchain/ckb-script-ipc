@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKB Script IPC Playground</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CKB Script IPC Playground</h1>
+            <p class="subtitle">
+                Run CKB VM in the browser and interact with server contracts via JSON-based IPC
+            </p>
+        </header>
+
+        <main>
+            <!-- Step 1: Load Binary -->
+            <section class="card">
+                <h2>1. Load Script Binary</h2>
+                <p class="hint">Upload a compiled CKB RISC-V binary (the server contract).</p>
+                <div class="file-upload" id="drop-zone">
+                    <input type="file" id="binary-input" accept=".bin,*/*">
+                    <label for="binary-input">
+                        <span class="upload-icon">📂</span>
+                        <span>Choose file or drag &amp; drop</span>
+                    </label>
+                    <div id="file-info" class="file-info hidden"></div>
+                </div>
+            </section>
+
+            <!-- Step 2: Configure Arguments -->
+            <section class="card">
+                <h2>2. Server Arguments</h2>
+                <p class="hint">Comma-separated arguments passed to the script (e.g. <code>server_entry</code>).</p>
+                <input type="text" id="args-input" placeholder="server_entry" value="server_entry">
+            </section>
+
+            <!-- Step 3: JSON Request -->
+            <section class="card">
+                <h2>3. JSON Request</h2>
+                <p class="hint">Enter the JSON-formatted IPC request to send to the server.</p>
+                <textarea id="json-input" rows="8" spellcheck="false" placeholder='{"TestPrimitiveTypes":{"arg1":1,"arg2":2,"arg3":3,"arg4":4,"arg5":5,"arg6":6,"arg7":7,"arg8":8,"arg9":9,"arg10":10,"arg11":true}}'></textarea>
+                <div class="button-row">
+                    <button id="execute-btn" disabled>▶ Execute</button>
+                    <button id="clear-btn" class="secondary">Clear</button>
+                </div>
+            </section>
+
+            <!-- Step 4: Response -->
+            <section class="card" id="response-section">
+                <h2>4. Response</h2>
+                <div id="status" class="status hidden"></div>
+                <div class="response-group">
+                    <label>JSON Response:</label>
+                    <pre id="json-output" class="output-box">—</pre>
+                </div>
+                <div class="response-group">
+                    <label>Cycles Used:</label>
+                    <pre id="cycles-output" class="output-box small">—</pre>
+                </div>
+                <div class="response-group">
+                    <label>Debug Output:</label>
+                    <pre id="debug-output" class="output-box">—</pre>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>
+                Powered by <a href="https://github.com/XuJiandong/ckb-script-ipc" target="_blank">ckb-script-ipc</a>
+                &mdash; CKB VM running in WebAssembly
+            </p>
+        </footer>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
