@@ -1,0 +1,18 @@
+[package]
+name = "ckb-script-ipc-web"
+version = "0.1.0"
+edition = "2021"
+description = "Web playground for CKB Script IPC - runs CKB VM in the browser via WebAssembly"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "=0.2.100"
+ckb-vm = { version = "0.24.13", default-features = false }
+# Enable wasm-bindgen support for getrandom (used by rand in ckb-vm)
+getrandom = { version = "0.1", features = ["wasm-bindgen"] }
+js-sys = "=0.3.77"
