@@ -4,13 +4,13 @@ let wasmModule = null;
 let binaryData = null;
 
 // ---------------------------------------------------------------------------
-// Initialise the WASM module
+// Initialize the WASM module
 // ---------------------------------------------------------------------------
 
 async function initWasm() {
     try {
         const wasm = await import("./pkg/ckb_script_ipc_web.js");
-        await wasm.default(); // initialise the wasm module
+        await wasm.default(); // initialize the wasm module
         wasmModule = wasm;
         updateExecuteButton();
     } catch (e) {
